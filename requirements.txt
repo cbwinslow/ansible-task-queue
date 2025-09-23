@@ -1,0 +1,11 @@
+# Task Queue System Requirements
+psycopg2-binary>=2.9.0
+pydantic>=1.10.0,<2.0.0
+PyJWT>=2.4.0
+ansible>=6.0.0
+pyyaml>=6.0
+requests>=2.28.0
+fastapi>=0.85.0
+uvicorn>=0.18.0
+python-multipart>=0.0.5
+passlib>=1.7.4

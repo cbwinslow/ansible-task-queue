@@ -1,0 +1,97 @@
+---
+# Example Ansible Playbooks for Task Queue System
+
+- name: Update system packages
+  hosts: all
+  become: yes
+  tasks:
+    - name: Update apt cache (Debian/Ubuntu)
+      apt:
+        update_cache: yes
+      when: ansible_os_family == "Debian"
+    
+    - name: Upgrade packages (Debian/Ubuntu)
+      apt:
+        upgrade: dist
+      when: ansible_os_family == "Debian"
+    
+    - name: Update packages (RedHat/CentOS)
+      yum:
+        name: "*"
+        state: latest
+      when: ansible_os_family == "RedHat"
+
+- name: Restart SSH service
+  hosts: all
+  become: yes
+  tasks:
+    - name: Restart SSH service
+      service:
+        name: "{{ 'ssh' if ansible_os_family != 'RedHat' else 'sshd' }}"
+        state: restarted
+
+- name: Check disk space
+  hosts: all
+  tasks:
+    - name: Get disk usage
+      command: df -h
+      register: disk_usage
+    
+    - name: Display disk usage
+      debug:
+        msg: "{{ disk_usage.stdout }}"
+
+- name: Update Fail2Ban configuration
+  hosts: all
+  become: yes
+  tasks:
+    - name: Create fail2ban local configuration
+      copy:
+        content: |
+          [DEFAULT]
+          ignoreip = 127.0.0.1/8 ::1 172.28.0.0/16
+          bantime = 24h
+          findtime = 10m
+          maxretry = 10
+          
+          [sshd]
+          enabled = true
+          bantime = 24h
+          findtime = 10m
+          maxretry = 10
+        dest: /etc/fail2ban/jail.local
+        owner: root
+        group: root
+        mode: '0644'
+    
+    - name: Reload fail2ban service
+      service:
+        name: fail2ban
+        state: reloaded
+
+- name: Backup PostgreSQL database
+  hosts: database_servers
+  become: yes
+  tasks:
+    - name: Create backup directory
+      file:
+        path: /backups
+        state: directory
+        owner: postgres
+        group: postgres
+        mode: '0755'
+    
+    - name: Backup database
+      shell: |
+        pg_dump -U postgres mydb > /backups/mydb-{{ ansible_date_time.date }}.sql
+      args:
+        chdir: /backups
+      environment:
+        PGPASSWORD: "{{ postgres_password }}"
+    
+    - name: Set backup file permissions
+      file:
+        path: "/backups/mydb-{{ ansible_date_time.date }}.sql"
+        owner: postgres
+        group: postgres
+        mode: '0600'
