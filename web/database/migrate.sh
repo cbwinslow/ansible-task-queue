@@ -12,8 +12,8 @@ echo ""
 DB_HOST="${DB_HOST:-localhost}"
 DB_PORT="${DB_PORT:-5432}"
 DB_NAME="${DB_NAME:-task_queue}"
-DB_USER="${DB_USER:-task_queue_user}"
-DB_PASSWORD="${DB_PASSWORD:-secure_task_queue_password}"
+DB_USER="${DB_USER:-${DB_USER}}"
+DB_PASSWORD="${DB_PASSWORD:-${DB_PASSWORD}}"
 
 # Colors for output
 RED='\033[0;31m'
@@ -213,8 +213,8 @@ show_help() {
     echo "  DB_HOST       Database host (default: localhost)"
     echo "  DB_PORT       Database port (default: 5432)"
     echo "  DB_NAME       Database name (default: task_queue)"
-    echo "  DB_USER       Database user (default: task_queue_user)"
-    echo "  DB_PASSWORD   Database password (default: secure_task_queue_password)"
+    echo "  DB_USER       Database user (default: ${DB_USER})"
+    echo "  DB_PASSWORD   Database password (default: ${DB_PASSWORD})"
 }
 
 # Main execution
